@@ -1,5 +1,6 @@
 import express from "express"
-import { db, generateAvatarUrl, generateRandomAvatarUrl } from "./db.js"
+import { db, generateRandomAvatarUrl } from "./db.js"
+import { validateUserData } from "./userDataValidation.js"
 
 const router = express.Router()
 
@@ -37,7 +38,7 @@ router.get("/users/:id", (req, res) => {
 })
 
 // Create new user
-router.post("/users", (req, res) => {
+router.post("/users", validateUserData, (req, res) => {
 	const { name, email, age, gender } = req.body
 
 	// Validation
