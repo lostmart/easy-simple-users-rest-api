@@ -13,6 +13,11 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // Routes
+
+app.get("/", (_req, res) => {
+	res.send("Hello, user!")
+})
+
 // Health check endpoint
 app.get("/api/health", checkKey, (req, res) => {
 	res.json({ status: "OK", message: "Server is running", time: new Date() })
