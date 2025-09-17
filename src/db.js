@@ -88,16 +88,76 @@ export const initializeDatabase = () => {
 
 					if (row.count === 0) {
 						const sampleUsers = [
-							["John Doe", "john@example.com", 30, "male"],
-							["Jane Smith", "jane@example.com", 25, "female"],
-							["Bob Johnson", "bob@example.com", 35, "male"],
-							["Alice Williams", "alice@example.com", 28, "female"],
-							["Charlie Brown", "charlie@example.com", 32, "male"],
-							["Eve Green", "eve@example.com", 27, "female"],
-							["Frank White", "frank@example.com", 31, "male"],
-							["Grace Black", "grace@example.com", 29, "female"],
-							["Harry Red", "harry@example.com", 33, "male"],
-							["Ivy Blue", "ivy@example.com", 26, "female"],
+							[
+								"John Doe",
+								"john@example.com",
+								30,
+								"male",
+								"https://avatar.iran.liara.run/public/boy",
+							],
+							[
+								"Jane Smith",
+								"jane@example.com",
+								25,
+								"female",
+								"https://avatar.iran.liara.run/public/girl",
+							],
+							[
+								"Bob Johnson",
+								"bob@example.com",
+								35,
+								"male",
+								"https://avatar.iran.liara.run/public/boy",
+							],
+							[
+								"Alice Williams",
+								"alice@example.com",
+								28,
+								"female",
+								"https://avatar.iran.liara.run/public/girl",
+							],
+							[
+								"Charlie Brown",
+								"charlie@example.com",
+								32,
+								"male",
+								"https://avatar.iran.liara.run/public/girl",
+							],
+							[
+								"Eve Green",
+								"eve@example.com",
+								27,
+								"female",
+								"https://avatar.iran.liara.run/public/boy",
+							],
+							[
+								"Frank White",
+								"frank@example.com",
+								31,
+								"male",
+								"https://avatar.iran.liara.run/public/boy",
+							],
+							[
+								"Grace Black",
+								"grace@example.com",
+								29,
+								"female",
+								"https://avatar.iran.liara.run/public/girl",
+							],
+							[
+								"Harry Red",
+								"harry@example.com",
+								33,
+								"male",
+								"https://avatar.iran.liara.run/public/girl",
+							],
+							[
+								"Ivy Blue",
+								"ivy@example.com",
+								26,
+								"female",
+								"https://avatar.iran.liara.run/public/girl",
+							],
 						]
 
 						const stmt = db.prepare(
@@ -106,10 +166,10 @@ export const initializeDatabase = () => {
 
 						let insertCount = 0
 						sampleUsers.forEach((user) => {
-							const [name, email, age, gender] = user
-							const avatarUrl = generateRandomAvatarUrl(gender)
+							const [name, email, age, gender, avatar_url] = user
+							// const avatarUrl = generateRandomAvatarUrl(gender)
 
-							stmt.run([name, email, age, gender, avatarUrl], (err) => {
+							stmt.run([name, email, age, gender, avatar_url], (err) => {
 								if (err) {
 									console.error("Error inserting user:", err.message)
 								} else {
