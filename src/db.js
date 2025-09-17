@@ -63,9 +63,9 @@ export const initializeDatabase = () => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             email TEXT NOT NULL,
-            age INTEGER,
+            age INTEGER NOT NULL,
             gender TEXT CHECK(gender IN ('male', 'female')),
-            avatar_url TEXT,
+            avatar_url TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
           )
         `,
