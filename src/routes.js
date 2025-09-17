@@ -1,5 +1,5 @@
 import express from "express"
-import { db, generateRandomAvatarUrl } from "./db.js"
+import { db } from "./db.js"
 import { validateUserData } from "./userDataValidation.js"
 
 const router = express.Router()
@@ -48,7 +48,8 @@ router.post("/users", validateUserData, (req, res) => {
 	}
 
 	// Generate avatar URL
-	const avatarUrl = generateRandomAvatarUrl(gender)
+	const inputGender = gender === "male" ? "boy" : "girl"
+	const avatarUrl = `https://avatar.iran.liara.run/public/${inputGender}`
 
 	const sql =
 		"INSERT INTO users (name, email, age, gender, avatar_url) VALUES (?, ?, ?, ?, ?)"

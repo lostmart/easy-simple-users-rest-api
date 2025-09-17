@@ -18,20 +18,20 @@ const generateAvatarUrl = (name, gender = null) => {
 	return `${baseUrl}/${initials}`
 }
 
-const generateRandomAvatarUrl = (gender = null) => {
-	const baseUrl = "https://avatar-placeholder.iran.liara.run"
-	const randomId = Math.floor(Math.random() * 100) + 1
+// const generateRandomAvatarUrl = (gender = null) => {
+// 	const baseUrl = "https://avatar-placeholder.iran.liara.run"
+// 	const randomId = Math.floor(Math.random() * 100) + 1
 
-	if (gender === "male") {
-		return `${baseUrl}/male?random=${randomId}`
-	} else if (gender === "female") {
-		return `${baseUrl}/female?random=${randomId}`
-	} else {
-		// Random gender
-		const randomGender = Math.random() > 0.5 ? "male" : "female"
-		return `${baseUrl}/${randomGender}?random=${randomId}`
-	}
-}
+// 	if (gender === "male") {
+// 		return `${baseUrl}/male?random=${randomId}`
+// 	} else if (gender === "female") {
+// 		return `${baseUrl}/female?random=${randomId}`
+// 	} else {
+// 		// Random gender
+// 		const randomGender = Math.random() > 0.5 ? "male" : "female"
+// 		return `${baseUrl}/${randomGender}?random=${randomId}`
+// 	}
+// }
 
 // Create a promise-based database initialization
 export const initializeDatabase = () => {
@@ -121,14 +121,14 @@ export const initializeDatabase = () => {
 								"charlie@example.com",
 								32,
 								"male",
-								"https://avatar.iran.liara.run/public/girl",
+								"https://avatar.iran.liara.run/public/boy",
 							],
 							[
 								"Eve Green",
 								"eve@example.com",
 								27,
 								"female",
-								"https://avatar.iran.liara.run/public/boy",
+								"https://avatar.iran.liara.run/public/girl",
 							],
 							[
 								"Frank White",
@@ -149,7 +149,7 @@ export const initializeDatabase = () => {
 								"harry@example.com",
 								33,
 								"male",
-								"https://avatar.iran.liara.run/public/girl",
+								"https://avatar.iran.liara.run/public/boy",
 							],
 							[
 								"Ivy Blue",
@@ -167,7 +167,6 @@ export const initializeDatabase = () => {
 						let insertCount = 0
 						sampleUsers.forEach((user) => {
 							const [name, email, age, gender, avatar_url] = user
-							// const avatarUrl = generateRandomAvatarUrl(gender)
 
 							stmt.run([name, email, age, gender, avatar_url], (err) => {
 								if (err) {
@@ -221,23 +220,25 @@ export const initializeDatabase = () => {
 											let updateCount = 0
 
 											rows.forEach((user) => {
-												const avatarUrl = generateRandomAvatarUrl(user.gender)
-												updateStmt.run([avatarUrl, user.id], (err) => {
-													if (err) {
-														console.error(
-															"Error updating avatar for user:",
-															err.message
-														)
-													} else {
-														updateCount++
-														if (updateCount === rows.length) {
-															updateStmt.finalize()
-															console.log(
-																`✅ Updated ${updateCount} users with avatar URLs`
+												const avatarUrl = updateStmt.run(
+													[avatarUrl, user.id],
+													(err) => {
+														if (err) {
+															console.error(
+																"Error updating avatar for user:",
+																err.message
 															)
+														} else {
+															updateCount++
+															if (updateCount === rows.length) {
+																updateStmt.finalize()
+																console.log(
+																	`✅ Updated ${updateCount} users with avatar URLs`
+																)
+															}
 														}
 													}
-												})
+												)
 											})
 										}
 									)
@@ -268,4 +269,4 @@ initializeDatabase()
 	})
 
 // Export avatar helper functions for use in routes
-export { generateAvatarUrl, generateRandomAvatarUrl }
+export { generateAvatarUrl }
