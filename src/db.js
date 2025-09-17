@@ -1,11 +1,52 @@
 import sqlite3 from "sqlite3"
+import fs from "fs"
+import path from "path"
 import { DB_FILE } from "./config.js"
 
 const { Database } = sqlite3.verbose()
 
+// Avatar generation helper functions
+const generateAvatarUrl = (name, gender = null) => {
+	const baseUrl = "https://avatar-placeholder.iran.liara.run"
+
+	// Generate avatar based on name initials
+	const initials = name
+		.split(" ")
+		.map((word) => word[0])
+		.join("")
+		.toUpperCase()
+	return `${baseUrl}/${initials}`
+}
+
+const generateRandomAvatarUrl = (gender = null) => {
+	const baseUrl = "https://avatar-placeholder.iran.liara.run"
+	const randomId = Math.floor(Math.random() * 100) + 1
+
+	if (gender === "male") {
+		return `${baseUrl}/male?random=${randomId}`
+	} else if (gender === "female") {
+		return `${baseUrl}/female?random=${randomId}`
+	} else {
+		// Random gender
+		const randomGender = Math.random() > 0.5 ? "male" : "female"
+		return `${baseUrl}/${randomGender}?random=${randomId}`
+	}
+}
+
 // Create a promise-based database initialization
 export const initializeDatabase = () => {
 	return new Promise((resolve, reject) => {
+		// Ensure the directory exists before creating the database
+		try {
+			const dbDir = path.dirname(DB_FILE)
+			fs.mkdirSync(dbDir, { recursive: true })
+			console.log(`✅ Database directory ready: ${dbDir}`)
+		} catch (error) {
+			console.error("Error creating database directory:", error.message)
+			reject(error)
+			return
+		}
+
 		const db = new Database(DB_FILE, (err) => {
 			if (err) {
 				console.error("Error opening database:", err.message)
@@ -14,7 +55,7 @@ export const initializeDatabase = () => {
 			}
 			console.log(`Connected to SQLite database at: ${DB_FILE}`)
 
-			// Create users table and populate with sample data
+			// Create users table with avatar field
 			db.serialize(() => {
 				db.run(
 					`
@@ -23,6 +64,8 @@ export const initializeDatabase = () => {
             name TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
             age INTEGER,
+            gender TEXT CHECK(gender IN ('male', 'female')),
+            avatar_url TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
           )
         `,
@@ -45,40 +88,105 @@ export const initializeDatabase = () => {
 
 					if (row.count === 0) {
 						const sampleUsers = [
-							["John Doe", "john@example.com", 30],
-							["Jane Smith", "jane@example.com", 25],
-							["Bob Johnson", "bob@example.com", 35],
-							["Alice Williams", "alice@example.com", 28],
-							["Charlie Brown", "charlie@example.com", 32],
-							["Eve Green", "eve@example.com", 27],
-							["Frank White", "frank@example.com", 31],
-							["Grace Black", "grace@example.com", 29],
-							["Harry Red", "harry@example.com", 33],
-							["Ivy Blue", "ivy@example.com", 26],
+							["John Doe", "john@example.com", 30, "male"],
+							["Jane Smith", "jane@example.com", 25, "female"],
+							["Bob Johnson", "bob@example.com", 35, "male"],
+							["Alice Williams", "alice@example.com", 28, "female"],
+							["Charlie Brown", "charlie@example.com", 32, "male"],
+							["Eve Green", "eve@example.com", 27, "female"],
+							["Frank White", "frank@example.com", 31, "male"],
+							["Grace Black", "grace@example.com", 29, "female"],
+							["Harry Red", "harry@example.com", 33, "male"],
+							["Ivy Blue", "ivy@example.com", 26, "female"],
 						]
 
 						const stmt = db.prepare(
-							"INSERT INTO users (name, email, age) VALUES (?, ?, ?)"
+							"INSERT INTO users (name, email, age, gender, avatar_url) VALUES (?, ?, ?, ?, ?)"
 						)
 
 						let insertCount = 0
 						sampleUsers.forEach((user) => {
-							stmt.run(user, (err) => {
+							const [name, email, age, gender] = user
+							const avatarUrl = generateRandomAvatarUrl(gender)
+
+							stmt.run([name, email, age, gender, avatarUrl], (err) => {
 								if (err) {
 									console.error("Error inserting user:", err.message)
 								} else {
 									insertCount++
 									if (insertCount === sampleUsers.length) {
 										stmt.finalize()
-										console.log(`✅ ${insertCount} sample users inserted`)
+										console.log(
+											`✅ ${insertCount} sample users inserted with avatars`
+										)
 										resolve(db)
 									}
 								}
 							})
 						})
 					} else {
-						console.log(`✅ Database already has ${row.count} users`)
-						resolve(db)
+						// Check if existing users need avatar URLs added
+						db.get(
+							"SELECT COUNT(*) as count FROM users WHERE avatar_url IS NULL",
+							(err, row) => {
+								if (err) {
+									console.error(
+										"Error checking users without avatars:",
+										err.message
+									)
+									resolve(db)
+									return
+								}
+
+								if (row.count > 0) {
+									console.log(
+										`Updating ${row.count} users with missing avatars...`
+									)
+
+									db.all(
+										"SELECT id, name, gender FROM users WHERE avatar_url IS NULL",
+										(err, rows) => {
+											if (err) {
+												console.error(
+													"Error fetching users without avatars:",
+													err.message
+												)
+												resolve(db)
+												return
+											}
+
+											const updateStmt = db.prepare(
+												"UPDATE users SET avatar_url = ? WHERE id = ?"
+											)
+											let updateCount = 0
+
+											rows.forEach((user) => {
+												const avatarUrl = generateRandomAvatarUrl(user.gender)
+												updateStmt.run([avatarUrl, user.id], (err) => {
+													if (err) {
+														console.error(
+															"Error updating avatar for user:",
+															err.message
+														)
+													} else {
+														updateCount++
+														if (updateCount === rows.length) {
+															updateStmt.finalize()
+															console.log(
+																`✅ Updated ${updateCount} users with avatar URLs`
+															)
+														}
+													}
+												})
+											})
+										}
+									)
+								}
+
+								console.log(`✅ Database already has ${row.count} users`)
+								resolve(db)
+							}
+						)
 					}
 				})
 			})
@@ -98,3 +206,6 @@ initializeDatabase()
 		console.error("Failed to initialize database:", err)
 		process.exit(1)
 	})
+
+// Export avatar helper functions for use in routes
+export { generateAvatarUrl, generateRandomAvatarUrl }

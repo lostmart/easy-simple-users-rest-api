@@ -11,10 +11,22 @@ The folder structure and overall architecture are not optimized for production u
 
 - Full CRUD operations for users
 - SQLite database with automatic table creation
-- Sample data insertion
+- Automatic avatar generation using Avatar Placeholder API
+- Sample data insertion with avatars
+- Gender-based avatar assignment
 - JSON responses
 - Error handling
 - CORS enabled
+- Environment configuration
+
+## Avatar Integration
+
+This API integrates with Avatar Placeholder to automatically generate diverse avatars for users:
+
+- Gender-based avatars: Male and female specific avatars
+- Random generation: Each user gets a unique random avatar
+- Automatic assignment: Avatars are generated on user creation
+- Avatar refresh: Update avatar endpoint to generate new avatars
 
 ## Folder Structure
 
@@ -33,17 +45,18 @@ project/
 
 ## Setup
 
-1. Initialize the project:
-
-```bash
-npm init -y
-```
-
-2. Install dependencies:
+1.  Clone / Fork the project :
 
 ```bash
 npm install express sqlite3 cors
 npm install -D nodemon
+```
+
+2. Create .env file in the project root:
+
+```env
+DB_FILE=data/users.db
+PORT=3000
 ```
 
 3. Start the server:
