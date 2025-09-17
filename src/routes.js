@@ -11,7 +11,6 @@ router.get("/users", (req, res) => {
 			return
 		}
 		res.json({
-			message: "Users retrieved successfully",
 			data: rows,
 			count: rows.length,
 		})

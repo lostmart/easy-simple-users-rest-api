@@ -3,6 +3,7 @@ import cors from "cors"
 import { initializeDatabase, db } from "./db.js"
 import routes from "./routes.js"
 import { PORT } from "./config.js"
+import { checkKey } from "./keyCheck.js"
 
 const app = express()
 
@@ -13,11 +14,11 @@ app.use(express.urlencoded({ extended: true }))
 
 // Routes
 // Health check endpoint
-app.get("/api/health", (_req, res) => {
+app.get("/api/health", checkKey, (req, res) => {
 	res.json({ status: "OK", message: "Server is running", time: new Date() })
 })
 
-app.use("/api", routes)
+app.use("/api", checkKey, routes)
 
 // Close database connection on app termination
 process.on("SIGINT", () => {
