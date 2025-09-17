@@ -1,6 +1,8 @@
 import path from "path"
 import sqlite3 from "sqlite3"
 import { fileURLToPath } from "url"
+import { DB_FILE } from "./config.js"
+
 
 const { Database } = sqlite3.verbose()
 
@@ -8,7 +10,7 @@ const { Database } = sqlite3.verbose()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 // SQLite database setup
-const dbPath = path.join(__dirname, "users.db")
+const dbPath = path.join(__dirname, DB_FILE)
 
 
 export const db = new Database(dbPath, (err) => {

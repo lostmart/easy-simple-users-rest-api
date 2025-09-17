@@ -1,18 +1,10 @@
 import express from "express"
+import { db } from "./db.js"
+
 const router = express.Router()
 
-// Routes
-
-router.get("/api/health", (req, res) => {
-	res.status(200).json({
-		message: "OK",
-		service: "backend",
-		time: new Date().toISOString(),
-	})
-})
-
 // GET /api/users - Get all users
-router.get("/api/users", (req, res) => {
+router.get("/users", (req, res) => {
 	db.all("SELECT * FROM users ORDER BY created_at DESC", (err, rows) => {
 		if (err) {
 			res.status(500).json({ error: err.message })
@@ -26,7 +18,7 @@ router.get("/api/users", (req, res) => {
 })
 
 // GET /api/users/:id - Get user by ID
-router.get("/api/users/:id", (req, res) => {
+router.get("/users/:id", (req, res) => {
 	const id = req.params.id
 	db.get("SELECT * FROM users WHERE id = ?", [id], (err, row) => {
 		if (err) {
@@ -45,7 +37,7 @@ router.get("/api/users/:id", (req, res) => {
 })
 
 // POST /api/users - Create new user
-router.post("/api/users", (req, res) => {
+router.post("/users", (req, res) => {
 	const { name, email, age } = req.body
 
 	if (!name || !email) {
@@ -74,7 +66,7 @@ router.post("/api/users", (req, res) => {
 })
 
 // PUT /api/users/:id - Update user
-router.put("/api/users/:id", (req, res) => {
+router.put("/users/:id", (req, res) => {
 	const id = req.params.id
 	const { name, email, age } = req.body
 
@@ -108,7 +100,7 @@ router.put("/api/users/:id", (req, res) => {
 })
 
 // DELETE /api/users/:id - Delete user
-router.delete("/api/users/:id", (req, res) => {
+router.delete("/users/:id", (req, res) => {
 	const id = req.params.id
 
 	db.run("DELETE FROM users WHERE id = ?", [id], function (err) {

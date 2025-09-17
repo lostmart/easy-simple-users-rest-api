@@ -2,9 +2,9 @@ import express from "express"
 import cors from "cors"
 import { db } from "./db.js"
 import routes from "./routes.js"
+import { PORT } from "./config.js"
 
 const app = express()
-const PORT = process.env.PORT || 3000
 
 // Middleware
 app.use(cors())
@@ -30,9 +30,10 @@ process.on("SIGINT", () => {
 })
 
 // Start server
+// Start server
 app.listen(PORT, () => {
-	console.log(`Server is running on http://localhost:${PORT}/api/health`)
-	console.log("API endpoints:")
+	console.log(`✅ Server running at http://localhost:${PORT}/api/health`)
+	console.log("📌 API endpoints:")
 	console.log("  GET    /api/users      - Get all users")
 	console.log("  GET    /api/users/:id  - Get user by ID")
 	console.log("  POST   /api/users      - Create new user")

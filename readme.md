@@ -2,6 +2,11 @@
 
 A simple Node.js REST API for user management using Express.js and SQLite database.
 
+## ⚠️ Important Notice
+
+This project is intended for learning and demonstration purposes only.
+The folder structure and overall architecture are not optimized for production use, scalability, or long-term maintainability.
+
 ## Features
 
 - Full CRUD operations for users
@@ -10,6 +15,21 @@ A simple Node.js REST API for user management using Express.js and SQLite databa
 - JSON responses
 - Error handling
 - CORS enabled
+
+## Folder Structure
+
+```
+project/
+├── src/
+│   ├── server.js   # Entry point
+│   ├── db.js
+│   └── routes.js
+├── data/
+│   └── users.db
+├── .gitignore
+├── package.json
+├── readme.md
+```
 
 ## Setup
 
