@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }))
 // Routes
 
 app.get("/", (_req, res) => {
-	res.send("Hello, user, martin here!")
+	res.send("welcome, user ")
 })
 
 // Health check endpoint
