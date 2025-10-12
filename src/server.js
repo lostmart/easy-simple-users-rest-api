@@ -64,6 +64,10 @@ const startServer = async () => {
 	}
 }
 
+// static folder
+//app.use(express.static("assets"))
+app.use("/assets", express.static("assets"))
+
 // Start the server
 startServer()
 

@@ -2,6 +2,12 @@ import sqlite3 from "sqlite3"
 import fs from "fs"
 import path from "path"
 import { DB_FILE } from "./config.js"
+// Load environment variables
+import dotenv from "dotenv"
+
+dotenv.config()
+
+const BASE_URL = process.env.BASE_URL || "http://localhost:3000"
 
 const { Database } = sqlite3.verbose()
 
@@ -87,13 +93,15 @@ export const initializeDatabase = () => {
 					}
 
 					if (row.count === 0) {
+						const baseUrl = BASE_URL
+
 						const sampleUsers = [
 							[
 								"John Doe",
 								"john@example.com",
 								30,
 								"male",
-								"https://avatar.iran.liara.run/public/boy",
+								`${baseUrl}/assets/userOne.jpg`,
 							],
 							[
 								"Jane Smith",
