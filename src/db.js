@@ -8,7 +8,7 @@ import dotenv from "dotenv"
 dotenv.config()
 
 const BASE_URL =
-	process.env.BASE_URL || "https://easy-simple-users-rest-api.onrender.com/"
+	process.env.BASE_URL || "https://easy-simple-users-rest-api.onrender.com"
 
 const { Database } = sqlite3.verbose()
 
