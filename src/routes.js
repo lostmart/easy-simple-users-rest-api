@@ -78,7 +78,7 @@ router.post("/users", (req, res) => {
 // Update user
 router.put("/users/:id", (req, res) => {
 	const { id } = req.params
-	const { name, email, age, gender } = req.body
+	const { name, email, age, gender, userImage } = req.body
 
 	// Check if user exists
 	db.get("SELECT * FROM users WHERE id = ?", [id], (err, row) => {
@@ -92,12 +92,12 @@ router.put("/users/:id", (req, res) => {
 		}
 
 		// Generate new avatar if gender changed or if no avatar exists
-		let avatarUrl = row.avatar_url
-		if (gender && gender !== row.gender) {
-			avatarUrl = generateRandomAvatarUrl(gender)
-		} else if (!avatarUrl) {
-			avatarUrl = generateRandomAvatarUrl(gender || row.gender)
-		}
+		// let avatarUrl = row.avatar_url
+		// if (gender && gender !== row.gender) {
+		// 	avatarUrl = generateRandomAvatarUrl(gender)
+		// } else if (!avatarUrl) {
+		// 	avatarUrl = generateRandomAvatarUrl(gender || row.gender)
+		// }
 
 		const sql =
 			"UPDATE users SET name = ?, email = ?, age = ?, gender = ?, avatar_url = ? WHERE id = ?"
@@ -106,7 +106,7 @@ router.put("/users/:id", (req, res) => {
 			email || row.email,
 			age !== undefined ? age : row.age,
 			gender || row.gender,
-			avatarUrl,
+			userImage || row.avatar_url,
 			id,
 		]
 
