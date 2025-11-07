@@ -86,11 +86,7 @@ router.put("/users/:id", (req, res) => {
 			res.status(404).json({ error: "User not found" })
 			return
 		}
-
-		// Generate avatar URL based on provided or existing gender
 		const updatedGender = gender || row.gender
-		const inputGender = updatedGender === "male" ? "boy" : "girl"
-		const avatarUrl = `https://avatar.iran.liara.run/public/${inputGender}`
 
 		const sql =
 			"UPDATE users SET name = ?, email = ?, age = ?, gender = ?, avatar_url = ? WHERE id = ?"
