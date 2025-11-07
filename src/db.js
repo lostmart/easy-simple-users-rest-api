@@ -2,6 +2,13 @@ import sqlite3 from "sqlite3"
 import fs from "fs"
 import path from "path"
 import { DB_FILE } from "./config.js"
+// Load environment variables
+import dotenv from "dotenv"
+
+dotenv.config()
+
+const BASE_URL =
+	process.env.BASE_URL || "https://easy-simple-users-rest-api.onrender.com"
 
 const { Database } = sqlite3.verbose()
 
@@ -18,20 +25,20 @@ const generateAvatarUrl = (name, gender = null) => {
 	return `${baseUrl}/${initials}`
 }
 
-const generateRandomAvatarUrl = (gender = null) => {
-	const baseUrl = "https://avatar-placeholder.iran.liara.run"
-	const randomId = Math.floor(Math.random() * 100) + 1
+// const generateRandomAvatarUrl = (gender = null) => {
+// 	const baseUrl = "https://avatar-placeholder.iran.liara.run"
+// 	const randomId = Math.floor(Math.random() * 100) + 1
 
-	if (gender === "male") {
-		return `${baseUrl}/male?random=${randomId}`
-	} else if (gender === "female") {
-		return `${baseUrl}/female?random=${randomId}`
-	} else {
-		// Random gender
-		const randomGender = Math.random() > 0.5 ? "male" : "female"
-		return `${baseUrl}/${randomGender}?random=${randomId}`
-	}
-}
+// 	if (gender === "male") {
+// 		return `${baseUrl}/male?random=${randomId}`
+// 	} else if (gender === "female") {
+// 		return `${baseUrl}/female?random=${randomId}`
+// 	} else {
+// 		// Random gender
+// 		const randomGender = Math.random() > 0.5 ? "male" : "female"
+// 		return `${baseUrl}/${randomGender}?random=${randomId}`
+// 	}
+// }
 
 // Create a promise-based database initialization
 export const initializeDatabase = () => {
@@ -63,9 +70,9 @@ export const initializeDatabase = () => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             email TEXT NOT NULL,
-            age INTEGER,
+            age INTEGER NOT NULL,
             gender TEXT CHECK(gender IN ('male', 'female')),
-            avatar_url TEXT,
+            avatar_url TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
           )
         `,
@@ -87,76 +94,78 @@ export const initializeDatabase = () => {
 					}
 
 					if (row.count === 0) {
+						const baseUrl = BASE_URL
+
 						const sampleUsers = [
 							[
 								"John Doe",
 								"john@example.com",
 								30,
 								"male",
-								"https://avatar.iran.liara.run/public/boy",
+								`${baseUrl}/assets/userOne.jpg`,
 							],
 							[
 								"Jane Smith",
 								"jane@example.com",
 								25,
 								"female",
-								"https://avatar.iran.liara.run/public/girl",
+								"https://plus.unsplash.com/premium_photo-1687832783343-9b79ccb831b8?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
 							],
 							[
 								"Bob Johnson",
 								"bob@example.com",
 								35,
 								"male",
-								"https://avatar.iran.liara.run/public/boy",
+								"https://images.pexels.com/photos/5195605/pexels-photo-5195605.jpeg",
 							],
 							[
 								"Alice Williams",
 								"alice@example.com",
 								28,
 								"female",
-								"https://avatar.iran.liara.run/public/girl",
+								"https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg",
 							],
 							[
 								"Charlie Brown",
 								"charlie@example.com",
 								32,
 								"male",
-								"https://avatar.iran.liara.run/public/girl",
+								"https://images.pexels.com/photos/4101967/pexels-photo-4101967.jpeg",
 							],
 							[
 								"Eve Green",
 								"eve@example.com",
 								27,
 								"female",
-								"https://avatar.iran.liara.run/public/boy",
+								"https://images.pexels.com/photos/29014886/pexels-photo-29014886.jpeg",
 							],
 							[
 								"Frank White",
 								"frank@example.com",
 								31,
 								"male",
-								"https://avatar.iran.liara.run/public/boy",
+								"https://images.pexels.com/photos/30254254/pexels-photo-30254254.jpeg",
 							],
 							[
-								"Grace Black",
+								"Grace Evans",
 								"grace@example.com",
 								29,
 								"female",
-								"https://avatar.iran.liara.run/public/girl",
+								"https://images.pexels.com/photos/21915253/pexels-photo-21915253.jpeg",
 							],
 							[
 								"Harry Red",
 								"harry@example.com",
 								33,
 								"male",
-								"https://avatar.iran.liara.run/public/girl",
+								"https://images.pexels.com/photos/697509/pexels-photo-697509.jpeg",
 							],
 							[
 								"Ivy Blue",
 								"ivy@example.com",
 								26,
 								"female",
-								"https://avatar.iran.liara.run/public/girl",
+								"https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg",
 							],
 						]
 
@@ -167,7 +176,6 @@ export const initializeDatabase = () => {
 						let insertCount = 0
 						sampleUsers.forEach((user) => {
 							const [name, email, age, gender, avatar_url] = user
-							// const avatarUrl = generateRandomAvatarUrl(gender)
 
 							stmt.run([name, email, age, gender, avatar_url], (err) => {
 								if (err) {
@@ -221,23 +229,25 @@ export const initializeDatabase = () => {
 											let updateCount = 0
 
 											rows.forEach((user) => {
-												const avatarUrl = generateRandomAvatarUrl(user.gender)
-												updateStmt.run([avatarUrl, user.id], (err) => {
-													if (err) {
-														console.error(
-															"Error updating avatar for user:",
-															err.message
-														)
-													} else {
-														updateCount++
-														if (updateCount === rows.length) {
-															updateStmt.finalize()
-															console.log(
-																`✅ Updated ${updateCount} users with avatar URLs`
+												const avatarUrl = updateStmt.run(
+													[avatarUrl, user.id],
+													(err) => {
+														if (err) {
+															console.error(
+																"Error updating avatar for user:",
+																err.message
 															)
+														} else {
+															updateCount++
+															if (updateCount === rows.length) {
+																updateStmt.finalize()
+																console.log(
+																	`✅ Updated ${updateCount} users with avatar URLs`
+																)
+															}
 														}
 													}
-												})
+												)
 											})
 										}
 									)
@@ -268,4 +278,4 @@ initializeDatabase()
 	})
 
 // Export avatar helper functions for use in routes
-export { generateAvatarUrl, generateRandomAvatarUrl }
+export { generateAvatarUrl }

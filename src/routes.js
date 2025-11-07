@@ -1,5 +1,6 @@
 import express from "express"
-import { db, generateAvatarUrl, generateRandomAvatarUrl } from "./db.js"
+import { db } from "./db.js"
+import { validateUserData } from "./userDataValidation.js"
 
 const router = express.Router()
 
@@ -37,17 +38,12 @@ router.get("/users/:id", (req, res) => {
 })
 
 // Create new user
-router.post("/users", (req, res) => {
+router.post("/users", validateUserData, (req, res) => {
 	const { name, email, age, gender } = req.body
 
-	// Validation
-	if (!name || !email) {
-		res.status(400).json({ error: "Name and email are required" })
-		return
-	}
-
 	// Generate avatar URL
-	const avatarUrl = generateRandomAvatarUrl(gender)
+	const inputGender = gender === "male" ? "boy" : "girl"
+	const avatarUrl = `https://avatar.iran.liara.run/public/${inputGender}`
 
 	const sql =
 		"INSERT INTO users (name, email, age, gender, avatar_url) VALUES (?, ?, ?, ?, ?)"
@@ -91,13 +87,10 @@ router.put("/users/:id", (req, res) => {
 			return
 		}
 
-		// Generate new avatar if gender changed or if no avatar exists
-		// let avatarUrl = row.avatar_url
-		// if (gender && gender !== row.gender) {
-		// 	avatarUrl = generateRandomAvatarUrl(gender)
-		// } else if (!avatarUrl) {
-		// 	avatarUrl = generateRandomAvatarUrl(gender || row.gender)
-		// }
+		// Generate avatar URL based on provided or existing gender
+		const updatedGender = gender || row.gender
+		const inputGender = updatedGender === "male" ? "boy" : "girl"
+		const avatarUrl = `https://avatar.iran.liara.run/public/${inputGender}`
 
 		const sql =
 			"UPDATE users SET name = ?, email = ?, age = ?, gender = ?, avatar_url = ? WHERE id = ?"
@@ -105,7 +98,7 @@ router.put("/users/:id", (req, res) => {
 			name || row.name,
 			email || row.email,
 			age !== undefined ? age : row.age,
-			gender || row.gender,
+			updatedGender,
 			userImage || row.avatar_url,
 			id,
 		]
@@ -117,11 +110,6 @@ router.put("/users/:id", (req, res) => {
 				} else {
 					res.status(500).json({ error: err.message })
 				}
-				return
-			}
-
-			if (this.changes === 0) {
-				res.status(404).json({ error: "User not found" })
 				return
 			}
 
@@ -137,49 +125,6 @@ router.put("/users/:id", (req, res) => {
 				})
 			})
 		})
-	})
-})
-
-// Generate new avatar for user
-router.patch("/users/:id/avatar", (req, res) => {
-	const { id } = req.params
-
-	// Check if user exists
-	db.get("SELECT * FROM users WHERE id = ?", [id], (err, row) => {
-		if (err) {
-			res.status(500).json({ error: err.message })
-			return
-		}
-		if (!row) {
-			res.status(404).json({ error: "User not found" })
-			return
-		}
-
-		// Generate new avatar
-		const newAvatarUrl = generateRandomAvatarUrl(row.gender)
-
-		db.run(
-			"UPDATE users SET avatar_url = ? WHERE id = ?",
-			[newAvatarUrl, id],
-			function (err) {
-				if (err) {
-					res.status(500).json({ error: err.message })
-					return
-				}
-
-				// Get the updated user
-				db.get("SELECT * FROM users WHERE id = ?", [id], (err, updatedRow) => {
-					if (err) {
-						res.status(500).json({ error: err.message })
-						return
-					}
-					res.json({
-						message: "Avatar updated successfully",
-						data: updatedRow,
-					})
-				})
-			}
-		)
 	})
 })
 

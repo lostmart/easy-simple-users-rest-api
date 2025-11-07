@@ -13,6 +13,11 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // Routes
+
+app.get("/", (_req, res) => {
+	res.send("welcome, user ")
+})
+
 // Health check endpoint
 app.get("/api/health", checkKey, (req, res) => {
 	res.json({ status: "OK", message: "Server is running", time: new Date() })
@@ -58,6 +63,10 @@ const startServer = async () => {
 		process.exit(1)
 	}
 }
+
+// static folder
+//app.use(express.static("assets"))
+app.use("/assets", express.static("assets"))
 
 // Start the server
 startServer()
